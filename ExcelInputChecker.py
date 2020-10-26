@@ -47,5 +47,5 @@ class ExcelInputChecker:
     def all_valid(self) -> bool:
         return self.number_of_checks() > 0 and self.__invalid_counter == 0
 
-active_book = xw.books.active
-checker = ExcelInputChecker(xw.books.active)
+# active_book = xw.books.active
+# checker = ExcelInputChecker(xw.books.active)
