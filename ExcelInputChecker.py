@@ -23,16 +23,16 @@ class ExcelInputChecker:
     def number_of_cell_name_checks(self) -> int:
         return self.__number_of_sheet_checks
 
-    def check_sheet_name(self, sheet_name: str) -> Union[xw.main.Sheet, None]:
+    def check_sheet(self, sheet_name: str) -> Union[xw.main.Sheet, None]:
         self.__number_of_sheet_checks += 1
         if sheet_name in self.all_sheet_names:
-            return sheet_name
+            return self.book.sheets[sheet_name]
         else:
             self.__invalid_counter += 1
             #win32api.MessageBox(self.book.app.hwnd, f"{sheet_name} 시트를 찾을 수 없습니다.")
             return None
 
-    def check_cell_name(self, cell_name: str):
+    def check_cell_name(self, cell_name: str) -> Union[str, None]:
         self.__number_of_cell_name_checks += 1
         if cell_name in self.all_cell_names:
             return cell_name
