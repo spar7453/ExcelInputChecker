@@ -2,7 +2,7 @@ import xlwings as xw
 #import win32api
 from typing import Union, List
 
-class ExcelInputChecker:
+class WorkBookHelper:
     def __init__(self, book: xw.main.Book):
         self.book: xw.main.Book = book
         self.all_sheet_names: List[str] = [sheet.name for sheet in self.book.sheets]
@@ -43,8 +43,7 @@ class ExcelInputChecker:
 
     def number_of_checks(self) -> int:
         return self.__number_of_cell_name_checks + self.__number_of_sheet_checks
-
-    def all_valid(self) -> bool:
+def all_valid(self) -> bool:
         return self.number_of_checks() > 0 and self.__invalid_counter == 0
 
 # active_book = xw.books.active
