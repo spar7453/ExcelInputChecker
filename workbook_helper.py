@@ -1,6 +1,6 @@
 import xlwings as xw
 #import win32api
-from typing import Union, List
+from typing import List, Optional
 
 class WorkBookHelper:
     def __init__(self, book: xw.main.Book):
@@ -23,7 +23,7 @@ class WorkBookHelper:
     def number_of_cell_name_checks(self) -> int:
         return self.__number_of_sheet_checks
 
-    def check_sheet(self, sheet_name: str) -> Union[xw.main.Sheet, None]:
+    def check_sheet(self, sheet_name: str) -> Optional[xw.main.Sheet]:
         self.__number_of_sheet_checks += 1
         if sheet_name in self.all_sheet_names:
             return self.book.sheets[sheet_name]
@@ -32,7 +32,7 @@ class WorkBookHelper:
             #win32api.MessageBox(self.book.app.hwnd, f"{sheet_name} 시트를 찾을 수 없습니다.")
             return None
 
-    def check_cell_name(self, cell_name: str) -> Union[str, None]:
+    def check_cell_name(self, cell_name: str) -> Optional[str]:
         self.__number_of_cell_name_checks += 1
         if cell_name in self.all_cell_names:
             return cell_name

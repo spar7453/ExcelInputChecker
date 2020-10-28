@@ -1,5 +1,5 @@
 import xlwings as xw
-from typing import Union, Any, Optional
+from typing import Any, Optional
 from excel_helper.workbook_helper import WorkBookHelper
 
 class SheetHelper:
@@ -9,21 +9,21 @@ class SheetHelper:
         self.__last_row: int = self.__last_cell.row
         self.__last_col_num: int = self.__last_cell.column
 
-    def iter_row(self, cell: xw.main.Range) -> Union[xw.main.Range, None]:
+    def iter_row(self, cell: xw.main.Range) -> Optional[xw.main.Range]:
         if cell.row == self.__last_row:
             return None
         else:
             # seems faster than cell.offset(1, 0)
             return self.sheet.cells(cell.row + 1, cell.column)
 
-    def iter_col(self, cell: xw.main.Range) -> Union[xw.main.Range, None]:
+    def iter_col(self, cell: xw.main.Range) -> Optional[xw.main.Range]:
         if cell.column == self.__last_col_num:
             return None
         else:
             # seems faster than cell.offset(0, 1)
             return self.sheet.cells(cell.row, cell.column + 1)
 
-    def find_first_location_in_col(self, col: str, value: Any, start_row: int = 1) -> Union[str, None]:
+    def find_first_location_in_col(self, col: str, value: Any, start_row: int = 1) -> Optional[str]:
         col_num = self.column_number(col.upper())
         if col_num is not None:
             last_non_empty_row = self.sheet.cells(self.__last_row, col_num).end("up").row
@@ -40,7 +40,7 @@ class SheetHelper:
         else:
             return None
 
-    def find_first_location_in_row(self, row: int, value: Any, start_col: str = "A") -> Union[str, None]:
+    def find_first_location_in_row(self, row: int, value: Any, start_col: str = "A") -> Optional[str]:
         start_col_num = self.column_number(start_col.upper())
         if start_col_num is not None:
             last_non_empty_col = self.sheet.cells(row, self.__last_col_num).end("left").column
@@ -62,7 +62,7 @@ class SheetHelper:
             return None
 
     @staticmethod
-    def column_letter(n: int) -> Union[str, None]:
+    def column_letter(n: int) -> Optional[str]:
         string = ""
         ascii_A = ord("A")
         while n > 0:
@@ -74,7 +74,7 @@ class SheetHelper:
             return string
 
     @staticmethod
-    def column_number(col: str) -> Union[int, None]:
+    def column_number(col: str) -> Optional[int]:
         ascii_A = ord("A")
         if col.isalpha():
             n = None
