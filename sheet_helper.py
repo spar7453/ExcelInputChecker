@@ -1,5 +1,5 @@
 import xlwings as xw
-from typing import Union, Any
+from typing import Union, Any, Optional
 from excel_helper.workbook_helper import WorkBookHelper
 
 class SheetHelper:
@@ -23,9 +23,9 @@ class SheetHelper:
             # seems faster than cell.offset(0, 1)
             return self.sheet.cells(cell.row, cell.column + 1)
 
-    def find_value_row(self, col: str, value: Any, start_row: int = 1) -> Union[int, None]:
-        if col.isalpha():
-            col_num = self.column_number(col.upper())
+    def find_first_location_in_col(self, col: str, value: Any, start_row: int = 1) -> Union[str, None]:
+        col_num = self.column_number(col.upper())
+        if col_num is not None:
             last_non_empty_row = self.sheet.cells(self.__last_row, col_num).end("up").row
             current_cell = self.sheet.range(col + str(start_row))
             if start_row > last_non_empty_row:
@@ -33,16 +33,16 @@ class SheetHelper:
             else:
                 for i in range(start_row, last_non_empty_row + 1):
                     if current_cell.value == value:
-                        return i
+                        return col + str(i)
                     else:
                         current_cell = self.iter_row(current_cell)
                 return None
         else:
             return None
 
-    def find_value_col(self, row: int, value: Any, start_col: str = "A") -> Union[str, None]:
-        if start_col.isalpha():
-            start_col_num = self.column_number(start_col.upper())
+    def find_first_location_in_row(self, row: int, value: Any, start_col: str = "A") -> Union[str, None]:
+        start_col_num = self.column_number(start_col.upper())
+        if start_col_num is not None:
             last_non_empty_col = self.sheet.cells(row, self.__last_col_num).end("left").column
             current_cell = self.sheet.range(start_col + str(row))
             if start_col_num > last_non_empty_col:
@@ -50,7 +50,11 @@ class SheetHelper:
             else:
                 for i in range(start_col_num, last_non_empty_col + 1):
                     if current_cell.value == value:
-                        return self.column_letter(i)
+                        column_letter = self.column_letter(i)
+                        if column_letter is not None:
+                            return column_letter + str(row)
+                        else:
+                            return None 
                     else:
                         current_cell = self.iter_col(current_cell)
                 return None
@@ -70,12 +74,12 @@ class SheetHelper:
             return string
 
     @staticmethod
-    def column_number(col: str) -> Union[str, None]:
+    def column_number(col: str) -> Union[int, None]:
         ascii_A = ord("A")
         if col.isalpha():
             n = None
             for alpha in col.upper():
-                if n == None:
+                if n is None:
                     n = 1 + ord(alpha) - ascii_A
                 else:
                     n = n * 26 + 1 + ord(alpha) - ascii_A
