@@ -30,27 +30,28 @@ class SheetHelper:
     def get_values_in_col(self, col: str, start_row: Optional[int] = None, end_row: Optional[int] = None) -> pd.Series:
         if col.isalpha():
             upper = col.upper()
+            col_num = self.column_number(col)
             if start_row is None and end_row is None:
-                last_non_empty_row = self.sheet.cells(self.__last_row, col).end("up").row
+                last_non_empty_row = self.sheet.cells(self.__last_row, col_num).end("up").row
                 start_cell = upper + str(1)
                 last_cell = upper + str(last_non_empty_row)
                 rng = start_cell + ":" + last_cell
-                return self.sheet.range(rng).options(pd.DataFrame, index=False, header=False).value.squeeze()
+                return self.range(rng).options(pd.DataFrame, index=False, header=False).value.squeeze()
             elif start_row is None and end_row is not None:
                 if end_row > 0:
                     start_cell = upper + str(1)
                     last_cell = upper + str(end_row)
                     rng = start_cell + ":" + last_cell
-                    return self.sheet.range(rng).options(pd.DataFrame, index=False, header=False).value.squeeze()
+                    return self.range(rng).options(pd.DataFrame, index=False, header=False).value.squeeze()
                 else:
                     raise Exception("1 이상의 값을 받아야 합니다")
             elif start_row is not None and end_row is None:
                 if start_row > 0:
-                    last_non_empty_row = self.sheet.cells(self.__last_row, col).end("up").row
+                    last_non_empty_row = self.sheet.cells(self.__last_row, col_num).end("up").row
                     start_cell = upper + str(start_row)
                     last_cell = upper + str(last_non_empty_row)
                     rng = start_cell + ":" + last_cell
-                    return self.sheet.range(rng).options(pd.DataFrame, index=False, header=False).value.squeeze()
+                    return self.range(rng).options(pd.DataFrame, index=False, header=False).value.squeeze()
                 else:
                     raise Exception("1 이상의 값을 받아야 합니다")
             else:
@@ -59,7 +60,7 @@ class SheetHelper:
                         start_cell = upper + str(start_row)
                         end_cell = upper + str(end_row)
                         rng = start_cell + ":" + end_cell
-                        return self.sheet.range(rng).options(pd.DataFrame, index=False, header=False).value.squeeze()
+                        return self.range(rng).options(pd.DataFrame, index=False, header=False).value.squeeze()
                     else:
                         raise Exception("end_row는 start_row 보다 같거나 커야합니다")
                 else:
@@ -70,27 +71,28 @@ class SheetHelper:
     def get_values_in_col(self, col: str, start_row: Optional[int] = None, end_row: Optional[int] = None) -> pd.Series:
         if col.isalpha():
             upper = col.upper()
+            col_num = self.column_number(col)
             if start_row is None and end_row is None:
-                last_non_empty_row = self.sheet.cells(self.__last_row, col).end("up").row
+                last_non_empty_row = self.sheet.cells(self.__last_row, col_num).end("up").row
                 start_cell = upper + str(1)
                 last_cell = upper + str(last_non_empty_row)
                 rng = start_cell + ":" + last_cell
-                return self.sheet.range(rng).options(pd.DataFrame, index=False, header=False).value.squeeze()
+                return self.range(rng).options(pd.DataFrame, index=False, header=False).value.squeeze()
             elif start_row is None and end_row is not None:
                 if end_row > 0:
                     start_cell = upper + str(1)
                     last_cell = upper + str(end_row)
                     rng = start_cell + ":" + last_cell
-                    return self.sheet.range(rng).options(pd.DataFrame, index=False, header=False).value.squeeze()
+                    return self.range(rng).options(pd.DataFrame, index=False, header=False).value.squeeze()
                 else:
                     raise Exception("1 이상의 값을 받아야 합니다")
             elif start_row is not None and end_row is None:
                 if start_row > 0:
-                    last_non_empty_row = self.sheet.cells(self.__last_row, col).end("up").row
+                    last_non_empty_row = self.sheet.cells(self.__last_row, col_num).end("up").row
                     start_cell = upper + str(start_row)
                     last_cell = upper + str(last_non_empty_row)
                     rng = start_cell + ":" + last_cell
-                    return self.sheet.range(rng).options(pd.DataFrame, index=False, header=False).value.squeeze()
+                    return self.range(rng).options(pd.DataFrame, index=False, header=False).value.squeeze()
                 else:
                     raise Exception("1 이상의 값을 받아야 합니다")
             else:
@@ -99,7 +101,7 @@ class SheetHelper:
                         start_cell = upper + str(start_row)
                         end_cell = upper + str(end_row)
                         rng = start_cell + ":" + end_cell
-                        return self.sheet.range(rng).options(pd.DataFrame, index=False, header=False).value.squeeze()
+                        return self.range(rng).options(pd.DataFrame, index=False, header=False).value.squeeze()
                     else:
                         raise Exception("end_row는 start_row 보다 같거나 커야합니다")
                 else:
@@ -113,30 +115,30 @@ class SheetHelper:
             if start_col is None and end_col is None:
                 last_non_empty_col = self.sheet.cells(row, self.__last_col_num).end("left").column
                 last_non_empty_col_letter = self.column_letter(last_non_empty_col)
-                start_cell = "A" + ":" + row_str
-                last_cell = last_non_empty_col_letter + ":" + row_str
+                start_cell = "A" + row_str
+                last_cell = last_non_empty_col_letter + row_str
                 rng = start_cell + ":" + last_cell
-                return self.sheet.range(rng).options(pd.DataFrame, index=False, header=False).value.squeeze()
+                return self.range(rng).options(pd.DataFrame, index=False, header=False).value.squeeze()
             elif start_col is None and end_col is not None:
-                start_cell = "A" + ":" + row_str
-                last_cell = end_col + ":" + row_str
+                start_cell = "A" + row_str
+                last_cell = end_col + row_str
                 rng = start_cell + ":" + last_cell
-                return self.sheet.range(rng).options(pd.DataFrame, index=False, header=False).value.squeeze()
+                return self.range(rng).options(pd.DataFrame, index=False, header=False).value.squeeze()
             elif start_col is not None and end_col is None:
                 last_non_empty_col = self.sheet.cells(row, self.__last_col_num).end("left").column
                 last_non_empty_col_letter = self.column_letter(last_non_empty_col)
-                start_cell = start_col + ":" + row_str
-                last_cell = last_non_empty_col_letter + ":" + row_str
+                start_cell = start_col + row_str
+                last_cell = last_non_empty_col_letter + row_str
                 rng = start_cell + ":" + last_cell
-                return self.sheet.range(rng).options(pd.DataFrame, index=False, header=False).value.squeeze()
+                return self.range(rng).options(pd.DataFrame, index=False, header=False).value.squeeze()
             else:
                 start_col_num = self.column_number(start_col)
                 end_col_num = self.column_number(end_col)
                 if end_col_num >= start_col_num:
-                    start_cell = start_col + ":" + row_str
-                    last_cell = end_col + ":" + row_str
+                    start_cell = start_col + row_str
+                    last_cell = end_col + row_str
                     rng = start_cell + ":" + last_cell
-                    return self.sheet.range(rng).options(pd.DataFrame, index=False, header=False).value.squeeze()
+                    return self.range(rng).options(pd.DataFrame, index=False, header=False).value.squeeze()
                 else:
                     raise Exception("end_col은 start_col 뒤에 있어야 합니다.")
         else:
@@ -145,7 +147,7 @@ class SheetHelper:
     def get_all_values_in_col(self, col: str) -> pd.Series:
         return self.get_values_in_col(col)
 
-    def get_all_values_in_col(self, row: int) -> pd.Series:
+    def get_all_values_in_row(self, row: int) -> pd.Series:
         return self.get_values_in_row(row)
 
     def get_value_idx_in_col(self, col) -> Dict[Any, List[str]]:
@@ -191,10 +193,10 @@ class SheetHelper:
         return dict
 
     def get_col_from_cell(self, cell: str) -> str:
-        return self.column_letter(self.sheet.range(cell).column)
+        return self.column_letter(self.range(cell).column)
 
     def get_row_from_cell(self, cell: str) -> int:
-        return self.sheet.range(cell).row
+        return self.range(cell).row
 
     def filter_cells_after_col(self, cell_list: List[str], col: str) -> List[str]:
         if col.isalpha():
