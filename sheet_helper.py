@@ -3,10 +3,6 @@ import pandas as pd
 import datetime
 from typing import Any, Optional, Dict, List
 
-"""
-TODO: Refactor get_value_idx. It is not necessary to load all values. Check whether xw.main.Range has iterator
-"""
-
 
 class SheetHelper:
     def __init__(self, sheet: xw.main.Sheet):
@@ -35,7 +31,7 @@ class SheetHelper:
             # seems faster than cell.offset(0, 1)
             return self.cells(cell.row, cell.column + 1)
 
-    def get_values_in_col(self, col: str, start_row: Optional[int] = None, end_row: Optional[int] = None) -> pd.Series:
+    def get_range_in_col(self, col: str, start_row: Optional[int] = None, end_row: Optional[int] = None) -> xw.main.Range:
         if col.isalpha():
             upper = col.upper()
             col_num = self.column_number(col)
@@ -44,25 +40,27 @@ class SheetHelper:
                 start_cell = upper + str(1)
                 last_cell = upper + str(last_non_empty_row)
                 rng = start_cell + ":" + last_cell
-                return self.range(rng).options(pd.DataFrame, index=False, header=False).value.squeeze()
+                return self.range(rng)
             elif start_row is None and end_row is not None:
                 if end_row > 0:
                     start_cell = upper + str(1)
                     last_cell = upper + str(end_row)
                     rng = start_cell + ":" + last_cell
-                    return self.range(rng).options(pd.DataFrame, index=False, header=False).value.squeeze()
+                    return self.range(rng)
                 else:
                     raise Exception("1 이상의 값을 받아야 합니다")
             elif start_row is not None and end_row is None:
                 if start_row > 0:
                     last_non_empty_row = self.cells(self.__last_row, col_num).end("up").row
                     if start_row > last_non_empty_row:
-                        return pd.Series([None])
+                        start_cell = upper + str(start_row)
+                        rng = start_cell + ":" + start_cell
+                        return self.range(rng)
                     else:
                         start_cell = upper + str(start_row)
                         last_cell = upper + str(last_non_empty_row)
                         rng = start_cell + ":" + last_cell
-                        return self.range(rng).options(pd.DataFrame, index=False, header=False).value.squeeze()
+                        return self.range(rng)
                 else:
                     raise Exception("1 이상의 값을 받아야 합니다")
             else:
@@ -71,7 +69,7 @@ class SheetHelper:
                         start_cell = upper + str(start_row)
                         end_cell = upper + str(end_row)
                         rng = start_cell + ":" + end_cell
-                        return self.range(rng).options(pd.DataFrame, index=False, header=False).value.squeeze()
+                        return self.range(rng)
                     else:
                         raise Exception("end_row는 start_row 보다 같거나 커야합니다")
                 else:
@@ -79,7 +77,7 @@ class SheetHelper:
         else:
             raise Exception("알파벳을 입력해 주십시오")
 
-    def get_values_in_row(self, row: int, start_col: Optional[str] = None, end_col: Optional[str] = None) -> pd.Series:
+    def get_range_in_row(self, row: int, start_col: Optional[str] = None, end_col: Optional[str] = None) -> xw.main.Range:
         if row > 0 :
             row_str = str(row)
             if start_col is None and end_col is None:
@@ -88,22 +86,24 @@ class SheetHelper:
                 start_cell = "A" + row_str
                 last_cell = last_non_empty_col_letter + row_str
                 rng = start_cell + ":" + last_cell
-                return self.range(rng).options(pd.DataFrame, index=False, header=False).value.squeeze()
+                return self.range(rng)
             elif start_col is None and end_col is not None:
                 start_cell = "A" + row_str
                 last_cell = end_col + row_str
                 rng = start_cell + ":" + last_cell
-                return self.range(rng).options(pd.DataFrame, index=False, header=False).value.squeeze()
+                return self.range(rng)
             elif start_col is not None and end_col is None:
                 last_non_empty_col = self.cells(row, self.__last_col_num).end("left").column
                 last_non_empty_col_letter = self.column_letter(last_non_empty_col)
                 if self.column_number(start_col) > last_non_empty_col:
-                    return pd.Series([None])
+                    start_cell = start_col + row_str
+                    rng = start_cell + ":" + start_cell
+                    return self.range(rng)
                 else:
                     start_cell = start_col + row_str
                     last_cell = last_non_empty_col_letter + row_str
                     rng = start_cell + ":" + last_cell
-                    return self.range(rng).options(pd.DataFrame, index=False, header=False).value.squeeze()
+                    return self.range(rng)
             else:
                 start_col_num = self.column_number(start_col)
                 end_col_num = self.column_number(end_col)
@@ -117,6 +117,12 @@ class SheetHelper:
         else:
             raise Exception("1 이상의 값을 받아야 합니다")
 
+    def get_values_in_col(self, col: str, start_row: Optional[int] = None, end_row: Optional[int] = None) -> pd.Series:
+        return self.get_range_in_col(col, start_row, end_row).options(pd.DataFrame, index=False, header=False).value.squeeze()
+
+    def get_values_in_row(self, row: int, start_col: Optional[str] = None, end_col: Optional[str] = None) -> pd.Series:
+        return self.get_range_in_row(row, start_col, end_col).options(pd.DataFrame, index=False, header=False).value.squeeze()
+
     def get_all_values_in_col(self, col: str) -> pd.Series:
         return self.get_values_in_col(col)
 
@@ -124,9 +130,11 @@ class SheetHelper:
         return self.get_values_in_row(row)
 
     def get_value_idx_in_col(self, col) -> Dict[Any, List[str]]:
-        column_values = self.get_all_values_in_col(col)
+        #column_values = self.get_all_values_in_col(col)
+        column_values = self.get_range_in_col(col)
         dict = {}
-        for idx, value in zip(column_values.index, column_values.values):
+        for idx, cell in enumerate(column_values):
+            value = cell.value
             if value is not None:
                 cell = col + str(idx + 1)
                 if type(value) == datetime.datetime:
@@ -145,9 +153,11 @@ class SheetHelper:
         return dict
 
     def get_value_idx_in_row(self, row) -> Dict[Any, List[str]]:
-        row_values = self.get_all_values_in_row(row)
+        #row_values = self.get_all_values_in_row(row)
+        row_values = self.get_range_in_row(row)
         dict = {}
-        for idx, value in zip(row_values.index, row_values.values):
+        for idx, cell in enumerate(row_values):
+            value = cell.value
             if value is not None:
                 cell = self.column_letter(idx + 1) + str(row)
                 if type(value) == datetime.datetime:
