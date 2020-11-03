@@ -130,7 +130,6 @@ class SheetHelper:
         return self.get_values_in_row(row)
 
     def get_value_idx_in_col(self, col) -> Dict[Any, List[str]]:
-        #column_values = self.get_all_values_in_col(col)
         column_values = self.get_range_in_col(col)
         dict = {}
         for idx, cell in enumerate(column_values):
@@ -153,7 +152,6 @@ class SheetHelper:
         return dict
 
     def get_value_idx_in_row(self, row) -> Dict[Any, List[str]]:
-        #row_values = self.get_all_values_in_row(row)
         row_values = self.get_range_in_row(row)
         dict = {}
         for idx, cell in enumerate(row_values):
