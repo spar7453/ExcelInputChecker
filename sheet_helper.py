@@ -3,6 +3,10 @@ import pandas as pd
 import datetime
 from typing import Any, Optional, Dict, List
 
+"""
+TODO: Refactor get_value_idx. It is not necessary to load all values. Check whether xw.main.Range has iterator
+"""
+
 
 class SheetHelper:
     def __init__(self, sheet: xw.main.Sheet):
