@@ -79,7 +79,7 @@ class SheetHelper:
         else:
             raise Exception("알파벳을 입력해 주십시오")
 
-    def get_values_in_row(self, row: int, start_col: Optional[str] = None, end_col: Optional[str] = None):
+    def get_values_in_row(self, row: int, start_col: Optional[str] = None, end_col: Optional[str] = None) -> pd.Series:
         if row > 0 :
             row_str = str(row)
             if start_col is None and end_col is None:
