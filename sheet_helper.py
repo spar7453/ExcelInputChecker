@@ -14,26 +14,29 @@ class SheetHelper:
     def range(self, cell: str) -> xw.main.Range:
         return self.sheet.range(cell)
 
+    def cells(self, row: int, col: int):
+        return self.sheet.cells(row, col)
+
     def iter_row(self, cell: xw.main.Range) -> Optional[xw.main.Range]:
         if cell.row == self.__last_row:
             return None
         else:
             # seems faster than cell.offset(1, 0)
-            return self.sheet.cells(cell.row + 1, cell.column)
+            return self.cells(cell.row + 1, cell.column)
 
     def iter_col(self, cell: xw.main.Range) -> Optional[xw.main.Range]:
         if cell.column == self.__last_col_num:
             return None
         else:
             # seems faster than cell.offset(0, 1)
-            return self.sheet.cells(cell.row, cell.column + 1)
+            return self.cells(cell.row, cell.column + 1)
 
     def get_values_in_col(self, col: str, start_row: Optional[int] = None, end_row: Optional[int] = None) -> pd.Series:
         if col.isalpha():
             upper = col.upper()
             col_num = self.column_number(col)
             if start_row is None and end_row is None:
-                last_non_empty_row = self.sheet.cells(self.__last_row, col_num).end("up").row
+                last_non_empty_row = self.cells(self.__last_row, col_num).end("up").row
                 start_cell = upper + str(1)
                 last_cell = upper + str(last_non_empty_row)
                 rng = start_cell + ":" + last_cell
@@ -48,7 +51,7 @@ class SheetHelper:
                     raise Exception("1 이상의 값을 받아야 합니다")
             elif start_row is not None and end_row is None:
                 if start_row > 0:
-                    last_non_empty_row = self.sheet.cells(self.__last_row, col_num).end("up").row
+                    last_non_empty_row = self.cells(self.__last_row, col_num).end("up").row
                     if start_row > last_non_empty_row:
                         return pd.Series([None])
                     else:
@@ -76,7 +79,7 @@ class SheetHelper:
         if row > 0 :
             row_str = str(row)
             if start_col is None and end_col is None:
-                last_non_empty_col = self.sheet.cells(row, self.__last_col_num).end("left").column
+                last_non_empty_col = self.cells(row, self.__last_col_num).end("left").column
                 last_non_empty_col_letter = self.column_letter(last_non_empty_col)
                 start_cell = "A" + row_str
                 last_cell = last_non_empty_col_letter + row_str
@@ -88,7 +91,7 @@ class SheetHelper:
                 rng = start_cell + ":" + last_cell
                 return self.range(rng).options(pd.DataFrame, index=False, header=False).value.squeeze()
             elif start_col is not None and end_col is None:
-                last_non_empty_col = self.sheet.cells(row, self.__last_col_num).end("left").column
+                last_non_empty_col = self.cells(row, self.__last_col_num).end("left").column
                 last_non_empty_col_letter = self.column_letter(last_non_empty_col)
                 if self.column_number(start_col) > last_non_empty_col:
                     return pd.Series([None])
