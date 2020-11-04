@@ -1,6 +1,5 @@
 import xlwings as xw
-import win32api
-from typing import List, Optional
+from typing import List
 
 class WorkBookHelper:
     def __init__(self, book: xw.main.Book):
