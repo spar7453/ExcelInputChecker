@@ -35,12 +35,17 @@ class SheetHelper:
         if col.isalpha():
             upper = col.upper()
             col_num = self.column_number(col)
-            if start_row is None and end_row is None:
-                last_non_empty_row = self.cells(self.__last_row, col_num).end("up").row
-                start_cell = upper + str(1)
-                last_cell = upper + str(last_non_empty_row)
-                rng = start_cell + ":" + last_cell
-                return self.range(rng)
+            if start_row is not None and end_row is not None:
+                if start_row > 0:
+                    if end_row >= start_row:
+                        start_cell = upper + str(start_row)
+                        end_cell = upper + str(end_row)
+                        rng = start_cell + ":" + end_cell
+                        return self.range(rng)
+                    else:
+                        raise Exception("end_row는 start_row 보다 같거나 커야합니다")
+                else:
+                    raise Exception("1 이상의 값을 받아야 합니다")
             elif start_row is None and end_row is not None:
                 if end_row > 0:
                     start_cell = upper + str(1)
@@ -63,31 +68,29 @@ class SheetHelper:
                         return self.range(rng)
                 else:
                     raise Exception("1 이상의 값을 받아야 합니다")
-            else:
+            else: 
                 # Linter should not hint error here, because None is already checked.
-                if start_row > 0:
-                    if end_row >= start_row:
-                        start_cell = upper + str(start_row)
-                        end_cell = upper + str(end_row)
-                        rng = start_cell + ":" + end_cell
-                        return self.range(rng)
-                    else:
-                        raise Exception("end_row는 start_row 보다 같거나 커야합니다")
-                else:
-                    raise Exception("1 이상의 값을 받아야 합니다")
+                last_non_empty_row = self.cells(self.__last_row, col_num).end("up").row
+                start_cell = upper + str(1)
+                last_cell = upper + str(last_non_empty_row)
+                rng = start_cell + ":" + last_cell
+                return self.range(rng)
         else:
             raise Exception("알파벳을 입력해 주십시오")
 
     def get_range_in_row(self, row: int, start_col: Optional[str] = None, end_col: Optional[str] = None) -> xw.main.Range:
         if row > 0 :
             row_str = str(row)
-            if start_col is None and end_col is None:
-                last_non_empty_col = self.cells(row, self.__last_col_num).end("left").column
-                last_non_empty_col_letter = self.column_letter(last_non_empty_col)
-                start_cell = "A" + row_str
-                last_cell = last_non_empty_col_letter + row_str
-                rng = start_cell + ":" + last_cell
-                return self.range(rng)
+            if start_col is not None and end_col is not None:
+                start_col_num = self.column_number(start_col)
+                end_col_num = self.column_number(end_col)
+                if end_col_num >= start_col_num:
+                    start_cell = start_col + row_str
+                    last_cell = end_col + row_str
+                    rng = start_cell + ":" + last_cell
+                    return self.range(rng)
+                else:
+                    raise Exception("end_col은 start_col 뒤에 있어야 합니다.")
             elif start_col is None and end_col is not None:
                 start_cell = "A" + row_str
                 last_cell = end_col + row_str
@@ -105,17 +108,13 @@ class SheetHelper:
                     last_cell = last_non_empty_col_letter + row_str
                     rng = start_cell + ":" + last_cell
                     return self.range(rng)
-            else:
-                # Linter should not hint error here, because None is already checked.
-                start_col_num = self.column_number(start_col)
-                end_col_num = self.column_number(end_col)
-                if end_col_num >= start_col_num:
-                    start_cell = start_col + row_str
-                    last_cell = end_col + row_str
-                    rng = start_cell + ":" + last_cell
-                    return self.range(rng).options(pd.DataFrame, index=False, header=False).value.squeeze()
-                else:
-                    raise Exception("end_col은 start_col 뒤에 있어야 합니다.")
+            else: # None, None
+                last_non_empty_col = self.cells(row, self.__last_col_num).end("left").column
+                last_non_empty_col_letter = self.column_letter(last_non_empty_col)
+                start_cell = "A" + row_str
+                last_cell = last_non_empty_col_letter + row_str
+                rng = start_cell + ":" + last_cell
+                return self.range(rng)
         else:
             raise Exception("1 이상의 값을 받아야 합니다")
 
@@ -178,6 +177,9 @@ class SheetHelper:
     def get_col_from_cell(self, cell: str) -> str:
         return self.column_letter(self.range(cell).column)
 
+    def get_col_num_from_cell(self, cell: str) -> int:
+        return self.range(cell).column
+
     def get_row_from_cell(self, cell: str) -> int:
         return self.range(cell).row
 
@@ -186,8 +188,7 @@ class SheetHelper:
             col_num = self.column_number(col)
             res = []
             for cell in cell_list:
-                cell_col = self.get_col_from_cell(cell)
-                if self.column_number(cell_col) > col_num:
+                if self.get_col_num_from_cell(cell) > col_num:
                     res.append(cell)
                 else:
                     continue
@@ -239,8 +240,8 @@ class SheetHelper:
 
     @staticmethod
     def column_number(col: str) -> int:
-        ascii_A = ord("A")
         if col.isalpha():
+            ascii_A = ord("A")
             n = 0
             for alpha in col.upper():
                 if n is None:
@@ -249,4 +250,4 @@ class SheetHelper:
                     n = n * 26 + 1 + ord(alpha) - ascii_A
             return n
         else:
-            raise Exception("알파벳을 받아야합니다.")
+            raise Exception("알파벳을 입력해 주십시오")
