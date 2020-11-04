@@ -129,11 +129,10 @@ class SheetHelper:
     def get_all_values_in_row(self, row: int) -> pd.Series:
         return self.get_values_in_row(row)
 
-    def get_value_idx_in_col(self, col) -> Dict[Any, List[str]]:
-        column_values = self.get_range_in_col(col)
+    def get_value_idx_in_col(self, col: str, start_row: Optional[int] = None, end_row: Optional[int] = None) -> Dict[Any, List[str]]:
+        column_values = self.get_values_in_col(col, start_row, end_row)
         dict: Dict[Any, List[str]] = {}
-        for idx, cell in enumerate(column_values):
-            value = cell.value
+        for idx, value in enumerate(column_values.values):
             if value is not None:
                 cell = col + str(idx + 1)
                 if type(value) == datetime.datetime:
@@ -151,11 +150,10 @@ class SheetHelper:
                 continue
         return dict
 
-    def get_value_idx_in_row(self, row) -> Dict[Any, List[str]]:
-        row_values = self.get_range_in_row(row)
+    def get_value_idx_in_row(self, row: int, start_col: Optional[str] = None, end_col: Optional[str] = None) -> Dict[Any, List[str]]:
+        row_values = self.get_values_in_row(row, start_col, end_col)
         dict: Dict[Any, List[str]] = {}
-        for idx, cell in enumerate(row_values):
-            value = cell.value
+        for idx, value in enumerate(row_values.values):
             if value is not None:
                 cell = self.column_letter(idx + 1) + str(row)
                 if type(value) == datetime.datetime:
@@ -182,12 +180,12 @@ class SheetHelper:
     def get_row_from_cell(self, cell: str) -> int:
         return self.range(cell).row
 
-    def filter_cells_after_col(self, cell_list: List[str], col: str) -> List[str]:
+    def filter_cells_from_col(self, cell_list: List[str], col: str) -> List[str]:
         if col.isalpha():
             col_num = self.column_number(col)
             res = []
             for cell in cell_list:
-                if self.get_col_num_from_cell(cell) > col_num:
+                if self.get_col_num_from_cell(cell) >= col_num:
                     res.append(cell)
                 else:
                     continue
@@ -195,12 +193,20 @@ class SheetHelper:
         else:
             raise Exception("알파벳을 입력해 주십시오")
 
-    def filter_cells_after_row(self, cell_list: List[str], row: int) -> List[str]:
+    def filter_cells_after_col(self, cell_list: List[str], col: str) -> List[str]:
+        if col.isalpha():
+            next_col_num = self.column_number(col) + 1
+            next_col_letter = self.column_letter(next_col_num)
+            return self.filter_cells_from_col(cell_list, next_col_letter)
+        else:
+            raise Exception("알파벳을 입력해 주십시오")
+
+    def filter_cells_from_row(self, cell_list: List[str], row: int) -> List[str]:
         if row > 0:
             res = []
             for cell in cell_list:
                 cell_row = self.get_row_from_cell(cell)
-                if cell_row > row:
+                if cell_row >= row:
                     res.append(cell)
                 else:
                     continue
@@ -208,18 +214,26 @@ class SheetHelper:
         else:
             raise Exception("1 이상의 값을 받아야 합니다")
 
-    def find_first_location_in_col(self, col: str, value: Any, start_row: int = 1) -> str:
+    def filter_cells_after_row(self, cell_list: List[str], row: int) -> List[str]:
+        if row >= 0:
+            return self.filter_cells_from_row(cell_list, row + 1) 
+        else:
+            raise Exception("0 이상의 값을 받아야 합니다")
+
+    def find_first_location_in_col(self, col: str, value: Any, start_row: Optional[int] = None, value_idx_col: Optional[Dict[Any, List[str]]] = None) -> str:
+        row = start_row if start_row is not None else 1
+        all_locations = value_idx_col[value] if value_idx_col is not None else self.get_value_idx_in_col(col)[value]
         upper = col.upper()
-        all_locations = self.get_value_idx_in_col(col)[value]
-        filtered_locations = self.filter_cells_after_row(all_locations, start_row)
+        filtered_locations = self.filter_cells_from_row(all_locations, row)
         if len(filtered_locations) == 0:
             raise Exception(f"{upper}열에서 {value} 값을 찾을 수 없습니다.")
         else:
             return filtered_locations[0]
 
-    def find_first_location_in_row(self, row: int, value: Any, start_col: str = "A") -> str:
-        all_locations = self.get_value_idx_in_row(row)[value]
-        filtered_locations = self.filter_cells_after_col(all_locations, start_col)
+    def find_first_location_in_row(self, row: int, value: Any, start_col: Optional[str] = None, value_idx_row: Optional[Dict[Any, List[str]]] = None) -> str:
+        col = start_col if start_col is not None else "A"
+        all_locations = value_idx_row[value] if value_idx_row is not None else self.get_value_idx_in_row(row)[value]
+        filtered_locations = self.filter_cells_from_col(all_locations, col)
         if len(filtered_locations) == 0:
             raise Exception(f"{row}행에서 {value} 값을 찾을 수 없습니다.")
         else:
