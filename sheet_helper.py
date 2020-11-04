@@ -64,6 +64,7 @@ class SheetHelper:
                 else:
                     raise Exception("1 이상의 값을 받아야 합니다")
             else:
+                # Linter should not hint error here, because None is already checked.
                 if start_row > 0:
                     if end_row >= start_row:
                         start_cell = upper + str(start_row)
@@ -105,6 +106,7 @@ class SheetHelper:
                     rng = start_cell + ":" + last_cell
                     return self.range(rng)
             else:
+                # Linter should not hint error here, because None is already checked.
                 start_col_num = self.column_number(start_col)
                 end_col_num = self.column_number(end_col)
                 if end_col_num >= start_col_num:
@@ -131,7 +133,7 @@ class SheetHelper:
 
     def get_value_idx_in_col(self, col) -> Dict[Any, List[str]]:
         column_values = self.get_range_in_col(col)
-        dict = {}
+        dict: Dict[Any, List[str]] = {}
         for idx, cell in enumerate(column_values):
             value = cell.value
             if value is not None:
@@ -153,7 +155,7 @@ class SheetHelper:
 
     def get_value_idx_in_row(self, row) -> Dict[Any, List[str]]:
         row_values = self.get_range_in_row(row)
-        dict = {}
+        dict: Dict[Any, List[str]] = {}
         for idx, cell in enumerate(row_values):
             value = cell.value
             if value is not None:
