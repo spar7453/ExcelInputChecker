@@ -69,7 +69,6 @@ class SheetHelper:
                 else:
                     raise Exception("1 이상의 값을 받아야 합니다")
             else: 
-                # Linter should not hint error here, because None is already checked.
                 last_non_empty_row = self.cells(self.__last_row, col_num).end("up").row
                 start_cell = upper + str(1)
                 last_cell = upper + str(last_non_empty_row)
