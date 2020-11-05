@@ -3,6 +3,13 @@ import pandas as pd
 import datetime
 from typing import Any, Optional, Dict, List
 
+"""
+TODO:
+1: Polish code
+2: Raise error in Excel msgbox
+3. Anyway to call multiple columns? eg) range([A, C, F]).value
+range(A).value + range(C).value + range(F).value is too slow
+"""
 
 class SheetHelper:
     def __init__(self, sheet: xw.main.Sheet):
