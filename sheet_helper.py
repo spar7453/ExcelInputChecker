@@ -1,4 +1,3 @@
-from datetime import date
 import xlwings as xw
 import pandas as pd
 import datetime
