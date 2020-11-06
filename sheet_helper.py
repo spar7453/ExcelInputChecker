@@ -1,3 +1,4 @@
+from datetime import date
 import xlwings as xw
 import pandas as pd
 import datetime
@@ -14,6 +15,8 @@ range(A).value + range(C).value + range(F).value is too slow
 class SheetHelper:
     def __init__(self, sheet: xw.main.Sheet):
         self.sheet: xw.main.Sheet = sheet
+        self._col_headers_location: Dict[str, Dict[Any, List[str]]] = {}
+        self._row_headers_location: Dict[str, Dict[Any, List[str]]] = {}
         self.__last_cell: xw.main.Range = sheet.cells.last_cell
         self.__last_row: int = self.__last_cell.row
         self.__last_col_num: int = self.__last_cell.column
@@ -245,6 +248,40 @@ class SheetHelper:
             raise Exception(f"{row}행에서 {value} 값을 찾을 수 없습니다.")
         else:
             return filtered_locations[0]
+
+    @property
+    def col_headers_location(self):
+        return self._col_headers_location
+
+    @property
+    def row_headers_location(self):
+        return self._row_headers_location
+
+    # @staticmethod
+    # def update_location(location_dict: Dict, value: Any, location: str) -> None:
+    #     if value is not None:
+    #         if type(value) == datetime.datetime:
+    #             date_string = value.strftime("%Y-%m-%d")
+    #             if date_string in location_dict:
+    #                 location_dict[date_string].append(location)
+    #             else:
+    #                 location_dict[date_string] = [location]
+    #         else:
+    #             if value in location_dict:
+    #                 if value not in location_dict[value]:
+    #                     location_dict[value].append(value)
+    #             else:
+    #                 location_dict[value] = [location]
+
+    # def update_col_headers_location(self, value: Any, location: str):
+    #     col_letter = self.get_col_from_cell(location)
+    #     if col_letter not in self.col_headers_location:
+
+    #     pass
+
+    # def update_row_headers_location(self, value: Any, location: str):
+    #     row = self.get_row_from_cell(location)
+    #     pass
 
     @staticmethod
     def column_letter(n: int) -> str:
