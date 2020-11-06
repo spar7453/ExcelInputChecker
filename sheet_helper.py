@@ -21,7 +21,7 @@ class SheetHelper:
     def range(self, cell: str) -> xw.main.Range:
         return self.sheet.range(cell)
 
-    def cells(self, row: int, col: int):
+    def cells(self, row: int, col: int) -> xw.main.Range:
         return self.sheet.cells(row, col)
 
     def iter_row(self, cell: xw.main.Range) -> Optional[xw.main.Range]:
